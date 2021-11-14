@@ -1,6 +1,6 @@
 export const themes = {
   main: {
-    secondary: '#cb0012',
+    secondary: '#250f0d',
     'secondary-dark': '#7f7f7f',
     success: '#008000',
     danger: '#ff0000',

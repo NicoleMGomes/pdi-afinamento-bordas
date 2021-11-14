@@ -57,12 +57,7 @@ const ImageTransform: React.FC = () => {
           name="select"
           onChange={(e) => onChangeSelect(e)}
         >
-          <option value="grayscale_gauss">Grayscale + Gauss</option>
-          <option value="brilho">Brilho 0.8</option>
-          <option value="deteccao_borda">Detector de borda</option>
-          <option value="contraste">Contraste 0.7</option>
-          <option value="mediana">Mediana local</option>
-          <option value="negativo">Negativo</option>
+          <option value="stentiford">Stentiford</option>
         </SelectEfeito>
 
         <button onClick={submitImage} disabled={!url}>
