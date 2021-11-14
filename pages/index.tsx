@@ -4,7 +4,7 @@ import ImageTransform from '../components/ImageTransform'
 const IndexPage: React.FC = () => (
   <main>
     <Head>
-      <title>Desafio da Nintendo</title>
+      <title>Afinamento de Bordas</title>
       <link rel="icon" href="/favicon.ico" />
     </Head>
     <ImageTransform />

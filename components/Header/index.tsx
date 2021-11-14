@@ -5,8 +5,8 @@ import { Container } from './styles'
 const Header: React.FC = () => {
   return (
     <Container>
-      <img src="/logo.png" alt="Logo de quadro"></img>
-      <h1>Desafio da Nintendo</h1>
+      <img src="/icon.png" alt="Ícone de borda"></img>
+      <h1>Afinamento de Bordas</h1>
     </Container>
   )
 }
