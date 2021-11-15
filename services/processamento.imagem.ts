@@ -29,12 +29,14 @@ const STEP_3 = 3
 const STEP_4 = 4
 
 export function stentiford(image: Jimp): Jimp {
-  const response = image.clone()
+  const response = createEmptyImage(image)
 
-  return processImage(image, response)
+  processImage(image, response)
+
+  return response
 }
 
-function processImage(image: Jimp, resultImage: Jimp):Jimp {
+function processImage(image: Jimp, resultImage: Jimp): Jimp {
   let change = true
   let step = 0
   let processImageResult = image.clone()
@@ -55,21 +57,12 @@ function processImage(image: Jimp, resultImage: Jimp):Jimp {
             change = true
           }
 
-          resultImage.setPixelColor(
-            Jimp.rgbaToInt(
-              v,
-              v,
-              v,
-              Jimp.intToRGBA(image.getPixelColor(x, y)).a
-            ),
-            x,
-            y
-          )
+          setPixelColor(resultImage, x, y, v)
         }
       }
     }
 
-    processImageResult = resultImage
+    processImageResult = resultImage.clone()
 
     if (step == STEP_4) {
       step = 0
@@ -188,4 +181,32 @@ function getHigherPixelValue(image: Jimp): number {
 
 function getPixelColor(image: Jimp, x: number, y: number): number {
   return Jimp.intToRGBA(image.getPixelColor(x, y)).r
+}
+
+function setPixelColor(image: Jimp, x: number, y: number, color: number) {
+  image.setPixelColor(
+    Jimp.rgbaToInt(
+      color,
+      color,
+      color,
+      Jimp.intToRGBA(image.getPixelColor(x, y)).a
+    ),
+    x,
+    y
+  )
+}
+
+function createEmptyImage(image: Jimp): Jimp {
+  const emptyImage: Jimp = image.clone()
+
+  for (const { x, y } of image.scanIterator(
+    0,
+    0,
+    image.bitmap.width,
+    image.bitmap.height
+  )) {
+    setPixelColor(emptyImage, x, y, 0)
+  }
+
+  return emptyImage
 }
