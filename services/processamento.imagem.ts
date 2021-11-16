@@ -1,6 +1,11 @@
 import Jimp from 'jimp'
 import formidable from 'formidable'
 
+const STEP_1 = 1
+const STEP_2 = 2
+const STEP_3 = 3
+const STEP_4 = 4
+
 export async function aplicaEfeitoImagem(
   efeito: string,
   file: formidable.File
@@ -23,37 +28,23 @@ export async function aplicaEfeitoImagem(
   return url
 }
 
-const STEP_1 = 1
-const STEP_2 = 2
-const STEP_3 = 3
-const STEP_4 = 4
-let higherPixelValue = 0
-
 export function stentiford(image: Jimp): Jimp {
-  const response = createEmptyImage(image)
-
-  processImage(image, response)
-
-  return response
-}
-
-function processImage(image: Jimp, resultImage: Jimp): Jimp {
+  const resultImage = createEmptyImage(image)
   let change = true
   let step = 0
   let processImageResult = image.clone()
+  const higherPixelValue = getHigherPixelValue(image)
 
   while (change) {
     change = false
     step++
 
-    higherPixelValue = calcHigherPixelValue(image)
-
     for (let x = 1; x < processImageResult.getWidth() - 1; x++) {
       for (let y = 1; y < processImageResult.getHeight() - 1; y++) {
-        if (isHigher(getPixelColor(processImageResult, x, y))) {
+        if (getPixelColor(processImageResult, x, y) == higherPixelValue) {
           const values = pixels(x, y, processImageResult)
           const v = Math.max(
-            Math.min(calc(values, step), getHigherPixelValue()),
+            Math.min(calc(values, step, higherPixelValue), higherPixelValue),
             0
           )
           if (v != getPixelColor(processImageResult, x, y)) {
@@ -72,11 +63,15 @@ function processImage(image: Jimp, resultImage: Jimp): Jimp {
     }
   }
 
-  return processImageResult
+  return resultImage
 }
 
-function calc(pixels: number[][], step: number): number {
-  const values = neighborhood(pixels)
+function calc(
+  pixels: number[][],
+  step: number,
+  higherPixelValue: number
+): number {
+  const values = neighborhood(pixels, higherPixelValue)
 
   if (!isConnected(values)) {
     return pixels[1][1]
@@ -89,22 +84,22 @@ function calc(pixels: number[][], step: number): number {
   const no = pixels[0][0]
 
   if (step == STEP_1) {
-    if (!(!isHigher(n) && isHigher(s))) {
+    if (!(n != higherPixelValue && s == higherPixelValue)) {
       return pixels[1][1]
     }
   }
   if (step == STEP_2) {
-    if (!(!isHigher(no) && isHigher(l))) {
+    if (!(no != higherPixelValue && l == higherPixelValue)) {
       return pixels[1][1]
     }
   }
   if (step == STEP_3) {
-    if (!(!isHigher(s) && isHigher(n))) {
+    if (!(s != higherPixelValue && n == higherPixelValue)) {
       return pixels[1][1]
     }
   }
   if (step == STEP_4) {
-    if (!(!isHigher(l) && isHigher(o))) {
+    if (!(l != higherPixelValue && o == higherPixelValue)) {
       return pixels[1][1]
     }
   }
@@ -112,13 +107,7 @@ function calc(pixels: number[][], step: number): number {
   return 0
 }
 
-function isHigher(value: number): boolean {
-  return value == getHigherPixelValue()
-}
-
-function neighborhood(pixels: number[][]): number[] {
-  const higherPixelValue = getHigherPixelValue()
-
+function neighborhood(pixels: number[][], higherPixelValue: number): number[] {
   const p2 = Math.floor(pixels[1][0] / higherPixelValue)
   const p3 = Math.floor(pixels[2][0] / higherPixelValue)
   const p4 = Math.floor(pixels[2][1] / higherPixelValue)
@@ -159,8 +148,8 @@ function pixels(x: number, y: number, image: Jimp): number[][] {
   return pixels
 }
 
-function calcHigherPixelValue(image: Jimp): number {
-  let higherPixelValue = 0
+function getHigherPixelValue(image: Jimp): number {
+  let value = 0
 
   for (const { x, y } of image.scanIterator(
     0,
@@ -174,16 +163,12 @@ function calcHigherPixelValue(image: Jimp): number {
       return 255
     }
 
-    if (higherPixelValue < pixelColor) {
-      higherPixelValue = pixelColor
+    if (value < pixelColor) {
+      value = pixelColor
     }
   }
 
-  return higherPixelValue
-}
-
-function getHigherPixelValue(): number {
-  return higherPixelValue
+  return value
 }
 
 function getPixelColor(image: Jimp, x: number, y: number): number {
