@@ -12,7 +12,7 @@ import ClipLoader from 'react-spinners/ClipLoader'
 
 const ImageTransform: React.FC = () => {
   const [url, setUrl] = useState<string>()
-  const [efeito, setEfeito] = useState('espelhar_verticalmente')
+  const [efeito, setEfeito] = useState('stentiford')
   const [formData, setFormData] = useState<FormData>()
   const [urlOutput, setUrlOutput] = useState<string>()
   const [loading, setLoading] = useState<boolean>(false)
