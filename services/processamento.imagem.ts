@@ -27,6 +27,7 @@ const STEP_1 = 1
 const STEP_2 = 2
 const STEP_3 = 3
 const STEP_4 = 4
+let higherPixelValue = 0
 
 export function stentiford(image: Jimp): Jimp {
   const response = createEmptyImage(image)
@@ -45,12 +46,14 @@ function processImage(image: Jimp, resultImage: Jimp): Jimp {
     change = false
     step++
 
+    higherPixelValue = calcHigherPixelValue(image)
+
     for (let x = 1; x < processImageResult.getWidth() - 1; x++) {
       for (let y = 1; y < processImageResult.getHeight() - 1; y++) {
-        if (isHigher(image, getPixelColor(processImageResult, x, y))) {
+        if (isHigher(getPixelColor(processImageResult, x, y))) {
           const values = pixels(x, y, processImageResult)
           const v = Math.max(
-            Math.min(calc(values, step, image), getHigherPixelValue(image)),
+            Math.min(calc(values, step), getHigherPixelValue()),
             0
           )
           if (v != getPixelColor(processImageResult, x, y)) {
@@ -72,8 +75,8 @@ function processImage(image: Jimp, resultImage: Jimp): Jimp {
   return processImageResult
 }
 
-function calc(pixels: number[][], step: number, image: Jimp): number {
-  const values = neighborhood(pixels, image)
+function calc(pixels: number[][], step: number): number {
+  const values = neighborhood(pixels)
 
   if (!isConnected(values)) {
     return pixels[1][1]
@@ -86,22 +89,22 @@ function calc(pixels: number[][], step: number, image: Jimp): number {
   const no = pixels[0][0]
 
   if (step == STEP_1) {
-    if (!(!isHigher(image, n) && isHigher(image, s))) {
+    if (!(!isHigher(n) && isHigher(s))) {
       return pixels[1][1]
     }
   }
   if (step == STEP_2) {
-    if (!(!isHigher(image, no) && isHigher(image, l))) {
+    if (!(!isHigher(no) && isHigher(l))) {
       return pixels[1][1]
     }
   }
   if (step == STEP_3) {
-    if (!(!isHigher(image, s) && isHigher(image, n))) {
+    if (!(!isHigher(s) && isHigher(n))) {
       return pixels[1][1]
     }
   }
   if (step == STEP_4) {
-    if (!(!isHigher(image, l) && isHigher(image, o))) {
+    if (!(!isHigher(l) && isHigher(o))) {
       return pixels[1][1]
     }
   }
@@ -109,12 +112,12 @@ function calc(pixels: number[][], step: number, image: Jimp): number {
   return 0
 }
 
-function isHigher(image: Jimp, value: number): boolean {
-  return value == getHigherPixelValue(image)
+function isHigher(value: number): boolean {
+  return value == getHigherPixelValue()
 }
 
-function neighborhood(pixels: number[][], image: Jimp): number[] {
-  const higherPixelValue = getHigherPixelValue(image)
+function neighborhood(pixels: number[][]): number[] {
+  const higherPixelValue = getHigherPixelValue()
 
   const p2 = Math.floor(pixels[1][0] / higherPixelValue)
   const p3 = Math.floor(pixels[2][0] / higherPixelValue)
@@ -156,7 +159,7 @@ function pixels(x: number, y: number, image: Jimp): number[][] {
   return pixels
 }
 
-function getHigherPixelValue(image: Jimp): number {
+function calcHigherPixelValue(image: Jimp): number {
   let higherPixelValue = 0
 
   for (const { x, y } of image.scanIterator(
@@ -176,6 +179,10 @@ function getHigherPixelValue(image: Jimp): number {
     }
   }
 
+  return higherPixelValue
+}
+
+function getHigherPixelValue(): number {
   return higherPixelValue
 }
 
